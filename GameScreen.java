@@ -6,12 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
-
 import java.util.Random;
 
-/**
- * Created by brad on 30/06/16.
- */
 public class GameScreen extends Activity
 {
     private GridLayout gridLayout;
@@ -77,6 +73,4 @@ public class GameScreen extends Activity
             }
         }
     }
-
-    //super.onCreate(savedInsta)
 }

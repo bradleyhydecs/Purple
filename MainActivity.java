@@ -6,24 +6,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         final Button buttoneasy = (Button) findViewById(R.id.button_easy);
-        buttoneasy.setOnClickListener(new View.OnClickListener() {
+        buttoneasy.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 buttoneasy.setText("You clicked!");
                 Intent i = new Intent(MainActivity.this, GameScreen.class);
                 startActivity(i);
             }
         });
-
     }
-
-   // public void
 }
