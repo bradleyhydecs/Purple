@@ -107,7 +107,8 @@ public class GameScreen extends Activity
      * @param savedInstanceState        our previous state of MainActivity.
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_layout);
         gridLayout = (GridLayout) findViewById(R.id.gridLayout);
