@@ -1,6 +1,8 @@
 # Purple
-A game involving red and blue blocks. Each row must have an equal number of red and blue blocks.
+A game involving red and blue blocks! Get it? Red and blue... Purple?
 
-![Alt text](purple_scaled.png?raw=true "Game Screen")
+Each row must have an equal number of red and blue blocks, and each row must be unique.
+
+![Alt text](gameplay_example.png?raw=true "Game Screen")
 
 Still very much a work in progress!
