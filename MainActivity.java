@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                buttoneasy.setText("You clicked!");
                 Intent i = new Intent(MainActivity.this, GameScreen.class);
                 startActivity(i);
             }
