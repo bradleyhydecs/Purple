@@ -1,13 +1,13 @@
 package com.example.brad.purple;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -17,7 +17,7 @@ public class GameScreen extends Activity
 {
     private GridLayout gridLayout;
     private ImageButton b[][];
-    private int SIZE = 4;
+    private int SIZE;
 
     /**
      * toggles color of given button between RED and BLUE.
@@ -141,13 +141,12 @@ public class GameScreen extends Activity
             // each row should be unique!
             return false;
         }
+
+        // you win!
+        TextView text = (TextView) findViewById(R.id.instruction);
+        text.setText("You win!");
         return true;
     }
-
-    // TODO:
-    // - select a row/col and color 2 blocks the same color.
-    //      the player can use this as a starting point.
-    //
 
     /**
      * initialization step upon creation.
@@ -163,18 +162,21 @@ public class GameScreen extends Activity
         gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         gridLayout.setUseDefaultMargins(true);
 
+        Bundle bundle = getIntent().getExtras();
+        SIZE = bundle.getInt("size");
+
         // represent our grid with a 2D array
         b = new ImageButton[SIZE][SIZE];
 
-        for (int i = 0; i < SIZE; i++)
+        for (int row = 0; row < SIZE; row++)
         {
-            for (int j = 0; j < SIZE; j++)
+            for (int col = 0; col < SIZE; col++)
             {
-                b[i][j] = new ImageButton(GameScreen.this);
-                b[i][j].setMinimumHeight(175);
-                b[i][j].setMinimumWidth(175);
+                b[row][col] = new ImageButton(GameScreen.this);
+                b[row][col].setMinimumHeight(175);
+                b[row][col].setMinimumWidth(175);
 
-                final ImageButton button = b[i][j];
+                final ImageButton button = b[row][col];
                 button.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -184,36 +186,27 @@ public class GameScreen extends Activity
                         if (isLevelComplete())
                         {
                             // you win!
-                            Intent i = new Intent(GameScreen.this, MainActivity.class);
-                            startActivity(i);
+//                            Intent i = new Intent(GameScreen.this, MainActivity.class);
+//                            startActivity(i);
                         }
                     }
                 });
-                b[i][j] = button;
+                b[row][col] = button;
+                b[row][col].setBackgroundColor(Color.GRAY);
+                b[row][col].setTag(BlockColor.NONE);
 
-                Random rand = new Random();
-                int r = rand.nextInt(10);
-
-                // red
-                if (r > 8)
-                {
-                    b[i][j].setBackgroundColor(Color.RED);
-                    b[i][j].setTag(BlockColor.RED);
-                }
-                //blue
-                else if (r > 6)
-                {
-                    b[i][j].setBackgroundColor(Color.BLUE);
-                    b[i][j].setTag(BlockColor.BLUE);
-                }
-                // uncolored
-                else
-                {
-                    b[i][j].setTag(BlockColor.NONE);
-                }
-
-                gridLayout.addView(b[i][j]);
+                gridLayout.addView(b[row][col]);
             }
+        }
+
+        // place starter blocks to help the player start
+        Random rand = new Random();
+        int randomCol = rand.nextInt(SIZE);
+        for (int i = 0; i < (SIZE/2); i++)
+        {
+            int num = rand.nextInt(SIZE);
+            b[randomCol][num].setBackgroundColor(Color.RED);
+            b[randomCol][num].setTag(BlockColor.RED);
         }
     }
 }

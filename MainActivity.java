@@ -22,6 +22,19 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view)
             {
                 Intent i = new Intent(MainActivity.this, GameScreen.class);
+                i.putExtra("size", 4);
+                startActivity(i);
+            }
+        });
+
+        final Button buttonhard = (Button) findViewById(R.id.button_hard);
+        buttonhard.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent i = new Intent(MainActivity.this, GameScreen.class);
+                i.putExtra("size", 4);
                 startActivity(i);
             }
         });
