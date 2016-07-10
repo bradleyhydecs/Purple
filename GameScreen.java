@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class GameScreen extends Activity
 {
@@ -16,23 +20,21 @@ public class GameScreen extends Activity
     private int SIZE = 4;
 
     /**
-     * toggles color of given button.
-     * red -> blue, blue -> red
+     * toggles color of given button between RED and BLUE.
      *
      * @param button        the button we will change the color of.
      */
     private void changeColor(ImageButton button)
     {
-        // if is RED
-        if ((int) button.getTag() == 1)
+        if (button.getTag() == BlockColor.RED)
         {
             button.setBackgroundColor(Color.BLUE);
-            button.setTag(0);
+            button.setTag(BlockColor.BLUE);
         }
         else
         {
             button.setBackgroundColor(Color.RED);
-            button.setTag(1);
+            button.setTag(BlockColor.RED);
         }
     }
 
@@ -47,16 +49,35 @@ public class GameScreen extends Activity
         int blues = 0;
         int goal = SIZE/2;
 
+        // store each row / col as a string
+        // so we can easily check if they are unique
+        Set<String> seqs = new HashSet<>();
+        StringBuilder tempSeq = new StringBuilder();
+
         // check left/right
         for (int row = 0; row < SIZE; row++)
         {
             for (int col = 0; col < SIZE; col++)
             {
-                if((int) b[row][col].getTag() == 1)
+                if(b[row][col].getTag() == BlockColor.RED)
+                {
                     reds++;
-                else if((int) b[row][col].getTag() == 0)
+                    tempSeq.append("r");
+                }
+                else if(b[row][col].getTag() == BlockColor.BLUE)
+                {
                     blues++;
+                    tempSeq.append("b");
+                }
+                else
+                {
+                    tempSeq.append("n");
+                }
             }
+            seqs.add(tempSeq.toString());
+
+            // reset tempSeq to empty
+            tempSeq.setLength(0);
 
             // early exit if win condition not met
             if ((reds != goal) || (blues != goal))
@@ -67,17 +88,41 @@ public class GameScreen extends Activity
             reds = 0;
             blues = 0;
         }
+
+        // check if every sequence of blocks is unique
+        if (seqs.size() != SIZE)
+        {
+            // error message:
+            // each row should be unique!
+            return false;
+        }
+
+        seqs.clear();
 
         // check up/down
         for (int col = 0; col < SIZE; col++)
         {
             for (int row = 0; row < SIZE; row++)
             {
-                if((int) b[row][col].getTag() == 1)
+                if(b[row][col].getTag() == BlockColor.RED)
+                {
                     reds++;
-                else if((int) b[row][col].getTag() == 0)
+                    tempSeq.append("r");
+                }
+                else if(b[row][col].getTag() == BlockColor.BLUE)
+                {
                     blues++;
+                    tempSeq.append("b");
+                }
+                else
+                {
+                    tempSeq.append("n");
+                }
             }
+            seqs.add(tempSeq.toString());
+
+            // reset tempSeq to empty
+            tempSeq.setLength(0);
 
             // early exit if win condition not met
             if ((reds != goal) || (blues != goal))
@@ -89,15 +134,19 @@ public class GameScreen extends Activity
             blues = 0;
         }
 
+        // check if every sequence of blocks is unique
+        if (seqs.size() != SIZE)
+        {
+            // error message:
+            // each row should be unique!
+            return false;
+        }
         return true;
     }
 
     // TODO:
     // - select a row/col and color 2 blocks the same color.
     //      the player can use this as a starting point.
-    //
-    // - record the ordering of each row, make sure it is unique
-    //      and same with cols
     //
 
     /**
@@ -149,18 +198,18 @@ public class GameScreen extends Activity
                 if (r > 8)
                 {
                     b[i][j].setBackgroundColor(Color.RED);
-                    b[i][j].setTag(1);
+                    b[i][j].setTag(BlockColor.RED);
                 }
                 //blue
                 else if (r > 6)
                 {
                     b[i][j].setBackgroundColor(Color.BLUE);
-                    b[i][j].setTag(0);
+                    b[i][j].setTag(BlockColor.BLUE);
                 }
                 // uncolored
                 else
                 {
-                    b[i][j].setTag(2);
+                    b[i][j].setTag(BlockColor.NONE);
                 }
 
                 gridLayout.addView(b[i][j]);
