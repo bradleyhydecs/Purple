@@ -148,26 +148,8 @@ public class GameScreen extends Activity
         return true;
     }
 
-    /**
-     * initialization step upon creation.
-     * sets up our game grid.
-     *
-     * @param savedInstanceState        our previous state of MainActivity.
-     */
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
+    private void initializeGrid()
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.game_layout);
-        gridLayout = (GridLayout) findViewById(R.id.gridLayout);
-        gridLayout.setUseDefaultMargins(true);
-
-        Bundle bundle = getIntent().getExtras();
-        SIZE = bundle.getInt("size");
-
-        // represent our grid with a 2D array
-        b = new ImageButton[SIZE][SIZE];
-
         for (int row = 0; row < SIZE; row++)
         {
             for (int col = 0; col < SIZE; col++)
@@ -186,8 +168,7 @@ public class GameScreen extends Activity
                         if (isLevelComplete())
                         {
                             // you win!
-//                            Intent i = new Intent(GameScreen.this, MainActivity.class);
-//                            startActivity(i);
+                            // display win message
                         }
                     }
                 });
@@ -198,15 +179,95 @@ public class GameScreen extends Activity
                 gridLayout.addView(b[row][col]);
             }
         }
+    }
 
-        // place starter blocks to help the player start
+    private void placeStarterBlocks()
+    {
         Random rand = new Random();
-        int randomCol = rand.nextInt(SIZE);
+        List<Integer> excludedRows = new ArrayList<>();
+        List<Integer> excludedCols = new ArrayList<>();
+
+        // place first few blocks in same col
+        int randRow = rand.nextInt(SIZE);
+        int randCol = 0;
+        excludedRows.add(randRow);
+
         for (int i = 0; i < (SIZE/2); i++)
         {
-            int num = rand.nextInt(SIZE);
-            b[randomCol][num].setBackgroundColor(Color.RED);
-            b[randomCol][num].setTag(BlockColor.RED);
+            randCol = rand.nextInt(SIZE);
+
+            // if num is a duplicate, get another num
+            while (excludedCols.contains(randCol))
+            {
+                randCol = rand.nextInt(SIZE);
+            }
+            excludedCols.add(randCol);
+
+            b[randRow][randCol].setBackgroundColor(Color.RED);
+            b[randRow][randCol].setTag(BlockColor.RED);
         }
+
+        // place next block in same row
+        for (int i = 0; i < (SIZE/2)-1; i++)
+        {
+            randRow = rand.nextInt(SIZE);
+            while (excludedRows.contains(randRow))
+            {
+                randRow = rand.nextInt(SIZE);
+            }
+            excludedRows.add(randRow);
+
+            randCol = excludedCols.get(i);
+            b[randRow][randCol].setBackgroundColor(Color.RED);
+            b[randRow][randCol].setTag(BlockColor.RED);
+        }
+
+        for (int i = 0; i < (SIZE/2)-1; i++)
+        {
+            // place final BLUE block
+            randRow = rand.nextInt(SIZE);
+            while (excludedRows.contains(randRow))
+            {
+                randRow = rand.nextInt(SIZE);
+            }
+            excludedRows.add(randRow);
+
+            randCol = rand.nextInt(SIZE);
+            while (excludedCols.contains(randCol))
+            {
+                randCol = rand.nextInt(SIZE);
+            }
+            excludedCols.add(randCol);
+
+            b[randRow][randCol].setBackgroundColor(Color.BLUE);
+            b[randRow][randCol].setTag(BlockColor.BLUE);
+        }
+    }
+
+    /**
+     * initialization step upon creation.
+     *
+     * @param savedInstanceState        our previous state of MainActivity.
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.game_layout);
+        gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        gridLayout.setUseDefaultMargins(true);
+
+        Bundle bundle = getIntent().getExtras();
+        SIZE = bundle.getInt("size");
+
+        // represent our grid with a 2D array
+        b = new ImageButton[SIZE][SIZE];
+
+        // set up board, place buttons into gridLayout
+        initializeGrid();
+
+        // place starter blocks to help the player start
+        placeStarterBlocks();
     }
 }
