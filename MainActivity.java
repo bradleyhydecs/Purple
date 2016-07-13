@@ -34,7 +34,18 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view)
             {
                 Intent i = new Intent(MainActivity.this, GameScreen.class);
-                i.putExtra("size", 4);
+                i.putExtra("size", 6);
+                startActivity(i);
+            }
+        });
+
+        final Button buttonhowtoplay = (Button) findViewById(R.id.button_howtoplay);
+        buttonhowtoplay.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent i = new Intent(MainActivity.this, HowToPlay.class);
                 startActivity(i);
             }
         });

@@ -3,13 +3,16 @@ package com.example.brad.purple;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -143,20 +146,30 @@ public class GameScreen extends Activity
         }
 
         // you win!
+        final Button buttonplayagain = (Button) findViewById(R.id.button_playagain);
+        buttonplayagain.setVisibility(View.VISIBLE);
+
         TextView text = (TextView) findViewById(R.id.instruction);
         text.setText("You win!");
         return true;
     }
 
+    /**
+     * initializes the grid state, before adding the starter blocks.
+     */
     private void initializeGrid()
     {
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int width = (displaymetrics.widthPixels / (SIZE)) - 16;
+
         for (int row = 0; row < SIZE; row++)
         {
             for (int col = 0; col < SIZE; col++)
             {
                 b[row][col] = new ImageButton(GameScreen.this);
-                b[row][col].setMinimumHeight(175);
-                b[row][col].setMinimumWidth(175);
+                b[row][col].setMinimumHeight(width);
+                b[row][col].setMinimumWidth(width);
 
                 final ImageButton button = b[row][col];
                 button.setOnClickListener(new View.OnClickListener()
@@ -181,66 +194,103 @@ public class GameScreen extends Activity
         }
     }
 
+    /**
+     * sets the color of the given block, and sets it as not clickable.
+     *
+     * @param block     the block to change color of.
+     * @param color     the color to change to.
+     */
+    private void setStarterBlock(ImageButton block, int color)
+    {
+        block.setBackgroundColor(color);
+        block.setClickable(false);
+
+        if (color == Color.RED)
+        {
+            block.setTag(BlockColor.RED);
+        }
+        else
+        {
+            block.setTag(BlockColor.BLUE);
+        }
+    }
+
+    /**
+     * gets a valid index that is not contained in the given List.
+     *
+     * @param  excludedNums     the List of numbers to avoid
+     * @return randNum          the number to return
+     */
+    private int getValidNum(List<Integer> excludedNums)
+    {
+        Random rand = new Random();
+        int randNum = rand.nextInt(SIZE);
+
+        while (excludedNums.contains(randNum))
+        {
+            randNum = rand.nextInt(SIZE);
+        }
+        return randNum;
+    }
+
+    /**
+     * places the starter blocks so the user has a place to start.
+     */
     private void placeStarterBlocks()
     {
         Random rand = new Random();
+
+        // keep track of rows/cols to exclude
+        // this is to prevent creating an unsolvable grid.
         List<Integer> excludedRows = new ArrayList<>();
         List<Integer> excludedCols = new ArrayList<>();
 
-        // place first few blocks in same col
+        // randomize the ordering of the colors
+        int colorA;
+        int colorB;
+        if (rand.nextInt(3) > 1)
+        {
+            colorA = Color.RED;
+            colorB = Color.BLUE;
+        }
+        else
+        {
+            colorA = Color.BLUE;
+            colorB = Color.RED;
+        }
+
+        // place first 2/3 blocks of color A
         int randRow = rand.nextInt(SIZE);
         int randCol = 0;
         excludedRows.add(randRow);
 
         for (int i = 0; i < (SIZE/2); i++)
         {
-            randCol = rand.nextInt(SIZE);
-
-            // if num is a duplicate, get another num
-            while (excludedCols.contains(randCol))
-            {
-                randCol = rand.nextInt(SIZE);
-            }
+            randCol = getValidNum(excludedCols);
             excludedCols.add(randCol);
-
-            b[randRow][randCol].setBackgroundColor(Color.RED);
-            b[randRow][randCol].setTag(BlockColor.RED);
+            setStarterBlock(b[randRow][randCol], colorA);
         }
 
-        // place next block in same row
+        // place next 1/2 blocks of color A
+        randCol = excludedCols.get(0);
         for (int i = 0; i < (SIZE/2)-1; i++)
         {
-            randRow = rand.nextInt(SIZE);
-            while (excludedRows.contains(randRow))
-            {
-                randRow = rand.nextInt(SIZE);
-            }
+            randRow = getValidNum(excludedRows);
             excludedRows.add(randRow);
 
-            randCol = excludedCols.get(i);
-            b[randRow][randCol].setBackgroundColor(Color.RED);
-            b[randRow][randCol].setTag(BlockColor.RED);
+            setStarterBlock(b[randRow][randCol], colorA);
         }
 
+        // place 1/2 blocks of color B because why not you don't control my life
         for (int i = 0; i < (SIZE/2)-1; i++)
         {
             // place final BLUE block
-            randRow = rand.nextInt(SIZE);
-            while (excludedRows.contains(randRow))
-            {
-                randRow = rand.nextInt(SIZE);
-            }
+            randRow = getValidNum(excludedRows);
             excludedRows.add(randRow);
-
-            randCol = rand.nextInt(SIZE);
-            while (excludedCols.contains(randCol))
-            {
-                randCol = rand.nextInt(SIZE);
-            }
+            randCol = getValidNum(excludedCols);
             excludedCols.add(randCol);
 
-            b[randRow][randCol].setBackgroundColor(Color.BLUE);
-            b[randRow][randCol].setTag(BlockColor.BLUE);
+            setStarterBlock(b[randRow][randCol], colorB);
         }
     }
 
@@ -250,7 +300,7 @@ public class GameScreen extends Activity
      * @param savedInstanceState        our previous state of MainActivity.
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    protected void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
@@ -258,8 +308,22 @@ public class GameScreen extends Activity
         gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         gridLayout.setUseDefaultMargins(true);
 
+        final Button buttonplayagain = (Button) findViewById(R.id.button_playagain);
+        buttonplayagain.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                onCreate(savedInstanceState);
+            }
+        });
+        buttonplayagain.setVisibility(View.INVISIBLE);
+
         Bundle bundle = getIntent().getExtras();
         SIZE = bundle.getInt("size");
+
+        gridLayout.setRowCount(SIZE);
+        gridLayout.setColumnCount(SIZE);
 
         // represent our grid with a 2D array
         b = new ImageButton[SIZE][SIZE];
